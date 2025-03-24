@@ -1,0 +1,12 @@
+{
+  "name": "resolver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "resolvers.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "padmanabha",
+  "license": "ISC"
+}

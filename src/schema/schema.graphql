@@ -1,9 +1,7 @@
-type User {
-  id: ID!
-  name: String
-  email: String
+type Query {
+  greetings: String!
 }
 
-type Query {
-  getUserInformation: [User]
+schema {
+  query: Query
 }

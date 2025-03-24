@@ -1,0 +1,80 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'Backend-taskhub-repo
+
+  Sample SAM Template for Backend-taskhub-repo
+
+  '
+Resources:
+  TaskHubLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: resolvers.lambdaHandler
+      Runtime: nodejs20.x
+      CodeUri: TaskHubLambdaFunction
+      MemorySize: 128
+      Timeout: 5
+    Metadata:
+      SamResourceId: TaskHubLambdaFunction
+  GreetingsResolver:
+    Type: AWS::AppSync::Resolver
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+        - TaskHubAppsyncApi
+        - ApiId
+      TypeName: Query
+      FieldName: greetings
+      DataSourceName: TaskHubLambdaDataSource
+  TaskHubAppsyncApi:
+    Type: AWS::AppSync::GraphQLApi
+    Properties:
+      Name: TaskHubAppsyncApi
+      AuthenticationType: API_KEY
+  TaskHubGraphQLSchema:
+    Type: AWS::AppSync::GraphQLSchema
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+        - TaskHubAppsyncApi
+        - ApiId
+      DefinitionS3Location: ..\..\src\schema\schema.graphql
+  TaskHubLambdaDataSource:
+    Type: AWS::AppSync::DataSource
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+        - TaskHubAppsyncApi
+        - ApiId
+      Name: TaskHubLambdaDataSource
+      Type: AWS_LAMBDA
+      LambdaConfig:
+        LambdaFunctionArn:
+          Fn::GetAtt:
+          - TaskHubLambdaFunction
+          - Arn
+      ServiceRoleArn:
+        Fn::GetAtt:
+        - TaskHubAppSyncLambdaRole
+        - Arn
+  TaskHubAppSyncLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: appsync.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+      - PolicyName: LambdaInvokePolicy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: lambda:InvokeFunction
+            Resource:
+              Fn::GetAtt:
+              - TaskHubLambdaFunction
+              - Arn

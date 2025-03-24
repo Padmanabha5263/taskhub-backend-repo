@@ -10,31 +10,28 @@ Resources:
   TaskHubLambdaFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: resolvers.handler
+      Handler: resolvers.lambdaHandler
       Runtime: nodejs20.x
       CodeUri: src/resolver/
       MemorySize: 128
       Timeout: 5
-      Policies:
-        - AmazonDynamoDBFullAccess # Grant Lambda full access to DynamoDB
 
-  ## Resolvers
-  GetItemResolver:
+  GreetingsResolver:
     Type: AWS::AppSync::Resolver
     Properties:
       ApiId: !GetAtt TaskHubAppsyncApi.ApiId
       TypeName: Query
-      FieldName: getUserInformation
-      DataSourceName: !GetAtt TaskHubLambdaFunction.Name
-      RequestMappingTemplate: |
-        {
-          "version": "2018-05-29",
-          "operation": "Invoke",
-          "payload": {
-            "field": "getItem",
-          }
-        }
-      ResponseMappingTemplate: "$util.toJson($context.result)"
+      FieldName: greetings
+      DataSourceName: TaskHubLambdaDataSource
+      # RequestMappingTemplate: |
+      #   {
+      #     "version": "2018-05-29",
+      #     "operation": "Invoke",
+      #     "payload": {
+      #       "field": "greetings",
+      #     }
+      #   }
+      # ResponseMappingTemplate: "$util.toJson($context.result)"
 
   ## AppSync API
   TaskHubAppsyncApi:
@@ -54,24 +51,11 @@ Resources:
     Type: AWS::AppSync::DataSource
     Properties:
       ApiId: !GetAtt TaskHubAppsyncApi.ApiId
-      Name: LambdaDataSource
+      Name: TaskHubLambdaDataSource
       Type: AWS_LAMBDA
       LambdaConfig:
         LambdaFunctionArn: !GetAtt TaskHubLambdaFunction.Arn
-      ServiceRoleArn: !GetAtt AppSyncLambdaRole.Arn
-
-  ## DynamoDB Table
-  TaskHubDynamoDBTable:
-    Type: AWS::DynamoDB::Table
-    Properties:
-      TableName: Users
-      AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
-      KeySchema:
-        - AttributeName: id
-          KeyType: HASH
-      BillingMode: PAY_PER_REQUEST
+      ServiceRoleArn: !GetAtt TaskHubAppSyncLambdaRole.Arn
 
   ## IAM Role for AppSync to Invoke Lambda
   TaskHubAppSyncLambdaRole:
@@ -92,7 +76,3 @@ Resources:
               - Effect: Allow
                 Action: lambda:InvokeFunction
                 Resource: !GetAtt TaskHubLambdaFunction.Arn
-Outputs:
-  TaskHubOutput:
-    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
