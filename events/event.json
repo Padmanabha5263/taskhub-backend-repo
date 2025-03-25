@@ -1,69 +1,43 @@
 {
-  "field": "sayHello",
   "arguments": {
-    "name": "User"
+    "name": "padmanabha"
   },
-  "identity": {
-    "claims": {
-      "sub": "192879fc-a240-4bf1-ab5a-d6a00f3063f9",
-      "email_verified": true,
-      "iss": "https://cognito-idp.us-west-2.amazonaws.com/us-west-xxxxxxxxxxx",
-      "phone_number_verified": false,
-      "cognito:username": "jdoe",
-      "aud": "7471s60os7h0uu77i1tk27sp9n",
-      "event_id": "bc334ed8-a938-4474-b644-9547e304e606",
-      "token_use": "id",
-      "auth_time": 1599154213,
-      "phone_number": "+19999999999",
-      "exp": 1599157813,
-      "iat": 1599154213,
-      "email": "jdoe@email.com"
-    },
-    "defaultAuthStrategy": "ALLOW",
-    "groups": null,
-    "issuer": "https://cognito-idp.us-west-2.amazonaws.com/us-west-xxxxxxxxxxx",
-    "sourceIp": ["1.1.1.1"],
-    "sub": "192879fc-a240-4bf1-ab5a-d6a00f3063f9",
-    "username": "jdoe"
-  },
+  "identity": null,
   "source": null,
   "request": {
     "headers": {
-      "x-forwarded-for": "1.1.1.1, 2.2.2.2",
-      "cloudfront-viewer-country": "US",
+      "x-amzn-appsync-is-vpce-request": "false",
+      "x-forwarded-for": "152.59.242.75, 15.158.42.110",
       "cloudfront-is-tablet-viewer": "false",
-      "via": "2.0 xxxxxxxxxxxxxxxx.cloudfront.net (CloudFront)",
+      "cloudfront-viewer-country": "IN",
+      "x-amzn-requestid": "624577a6-22d3-47e0-8584-0dd28310a170",
+      "x-amzn-remote-ip": "152.59.242.75",
+      "via": "1.1 3ba03fbd4da6026f2ea63b657283d714.cloudfront.net (CloudFront)",
+      "x-api-key": "da2-fsdhfjjsrzhl5blnfukqk2suju",
       "cloudfront-forwarded-proto": "https",
-      "origin": "https://us-west-1.console.aws.amazon.com",
-      "content-length": "217",
-      "accept-language": "en-US,en;q=0.9",
-      "host": "xxxxxxxxxxxxxxxx.appsync-api.us-west-1.amazonaws.com",
+      "content-type": "application/json",
+      "x-amzn-trace-id": "Root=1-67e2763f-042c8ef65709a66635da66e0",
+      "x-amz-cf-id": "VUgmFS3uov1B15qQs5KBROjtcqF7G1ogJKWfq6f0WLHTWG64npP7Mw==",
+      "content-length": "111",
       "x-forwarded-proto": "https",
-      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.83 Safari/537.36",
+      "host": "suozcq7gn5cunezjseieb6ze3e.appsync-api.ap-south-1.amazonaws.com",
+      "user-agent": "PostmanClient/11.37.5 (AppId=a640b538-13e6-4923-a207-5bc7e41c8930)",
+      "cloudfront-is-desktop-viewer": "true",
       "accept": "*/*",
       "cloudfront-is-mobile-viewer": "false",
+      "x-forwarded-port": "443",
       "cloudfront-is-smarttv-viewer": "false",
-      "accept-encoding": "gzip, deflate, br",
-      "referer": "https://us-west-1.console.aws.amazon.com/appsync/home?region=us-west-1",
-      "content-type": "application/json",
-      "sec-fetch-mode": "cors",
-      "x-amz-cf-id": "3aykhqlUwQeANU-HGY7E_guV5EkNeMMtwyOgiA==",
-      "x-amzn-trace-id": "Root=1-5f512f51-fac632066c5e848ae714",
-      "authorization": "eyJraWQiOiJScWFCSlJqYVJlM0hrSnBTUFpIcVRXazNOW...",
-      "sec-fetch-dest": "empty",
-      "x-amz-user-agent": "AWS-Console-AppSync/",
-      "cloudfront-is-desktop-viewer": "true",
-      "sec-fetch-site": "cross-site",
-      "x-forwarded-port": "443"
-    }
+      "cloudfront-viewer-asn": "55836"
+    },
+    "domainName": null
   },
   "prev": null,
   "info": {
-    "selectionSetList": ["id", "field1", "field2"],
-    "selectionSetGraphQL": "{\n  id\n  field1\n  field2\n}",
-    "parentTypeName": "Mutation",
-    "fieldName": "createSomething",
-    "variables": {}
+    "fieldName": "sayHello",
+    "selectionSetList": [],
+    "selectionSetGraphQL": "",
+    "variables": {},
+    "parentTypeName": "Query"
   },
   "stash": {}
 }

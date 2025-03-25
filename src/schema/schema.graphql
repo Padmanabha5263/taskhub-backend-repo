@@ -1,5 +1,5 @@
 type Query {
-  greetings: String!
+  sayHello(name: String!): String!
 }
 
 schema {

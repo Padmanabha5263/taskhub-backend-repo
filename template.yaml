@@ -18,20 +18,12 @@ Resources:
 
   GreetingsResolver:
     Type: AWS::AppSync::Resolver
+    DependsOn: TaskHubLambdaDataSource
     Properties:
       ApiId: !GetAtt TaskHubAppsyncApi.ApiId
       TypeName: Query
-      FieldName: greetings
+      FieldName: sayHello
       DataSourceName: TaskHubLambdaDataSource
-      # RequestMappingTemplate: |
-      #   {
-      #     "version": "2018-05-29",
-      #     "operation": "Invoke",
-      #     "payload": {
-      #       "field": "greetings",
-      #     }
-      #   }
-      # ResponseMappingTemplate: "$util.toJson($context.result)"
 
   ## AppSync API
   TaskHubAppsyncApi:

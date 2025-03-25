@@ -1,3 +1,3 @@
-export const greetings = () => {
-  return "Hello! this is the first appsync graphql";
+export const sayHello = (event) => {
+  return `Hello ${event.arguments.name}! Welcome to AppSync with Lambda`;
 };

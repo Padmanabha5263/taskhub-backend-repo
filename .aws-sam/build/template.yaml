@@ -18,13 +18,14 @@ Resources:
       SamResourceId: TaskHubLambdaFunction
   GreetingsResolver:
     Type: AWS::AppSync::Resolver
+    DependsOn: TaskHubLambdaDataSource
     Properties:
       ApiId:
         Fn::GetAtt:
         - TaskHubAppsyncApi
         - ApiId
       TypeName: Query
-      FieldName: greetings
+      FieldName: sayHello
       DataSourceName: TaskHubLambdaDataSource
   TaskHubAppsyncApi:
     Type: AWS::AppSync::GraphQLApi
