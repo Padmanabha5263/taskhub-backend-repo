@@ -27,6 +27,14 @@ Resources:
       TypeName: Query
       FieldName: sayHello
       DataSourceName: TaskHubLambdaDataSource
+  AppsyncApikey:
+    Type: AWS::AppSync::ApiKey
+    Properties:
+      ApiId:
+        Fn::GetAtt:
+        - TaskHubAppsyncApi
+        - ApiId
+      Expires: 1746057599
   TaskHubAppsyncApi:
     Type: AWS::AppSync::GraphQLApi
     Properties:
