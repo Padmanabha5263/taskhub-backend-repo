@@ -10,11 +10,11 @@ Resources:
   TaskHubLambdaFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: resolvers.lambdaHandler
+      Handler: lambda.lambdaHandler
       Runtime: nodejs20.x
-      CodeUri: src/resolver/
+      CodeUri: src/
       MemorySize: 128
-      Timeout: 5
+      Timeout: 10
 
   GreetingsResolver:
     Type: AWS::AppSync::Resolver
@@ -23,6 +23,15 @@ Resources:
       ApiId: !GetAtt TaskHubAppsyncApi.ApiId
       TypeName: Query
       FieldName: sayHello
+      DataSourceName: TaskHubLambdaDataSource
+
+  GetTasksByUserIdResolver:
+    Type: AWS::AppSync::Resolver
+    DependsOn: TaskHubLambdaDataSource
+    Properties:
+      ApiId: !GetAtt TaskHubAppsyncApi.ApiId
+      TypeName: Query
+      FieldName: GetTasksByUserIdResolver
       DataSourceName: TaskHubLambdaDataSource
 
   AppsyncApikey:

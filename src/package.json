@@ -1,0 +1,15 @@
+{
+  "name": "backend-taskhub-repo",
+  "version": "1.0.0",
+  "description": "it is an backend project",
+  "main": "lambda.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "padmanabha",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.777.0"
+  }
+}
