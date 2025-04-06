@@ -14,7 +14,18 @@ Resources:
       Runtime: nodejs20.x
       CodeUri: src/
       MemorySize: 128
-      Timeout: 10
+      Timeout: 5
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:PutItem
+                - dynamodb:GetItem
+                - dynamodb:Scan
+                - dynamodb:Query
+                - dynamodb:UpdateItem
+                - dynamodb:DeleteItem
+              Resource: arn:aws:dynamodb:ap-south-1:977098988167:table/task
 
   GreetingsResolver:
     Type: AWS::AppSync::Resolver
@@ -31,7 +42,7 @@ Resources:
     Properties:
       ApiId: !GetAtt TaskHubAppsyncApi.ApiId
       TypeName: Query
-      FieldName: GetTasksByUserIdResolver
+      FieldName: getTasksByUserId
       DataSourceName: TaskHubLambdaDataSource
 
   AppsyncApikey:

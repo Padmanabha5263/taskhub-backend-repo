@@ -1,11 +1,26 @@
-// import { getTasksByUserId } from "./resolver/getTasksByUserId.js";
-import { sayHello } from "./resolver/greetings.js";
+import { getTasksByUserIdHandler } from "./resolver/getTasksByUserId.js";
+import { sayHelloHandler } from "./resolver/greetings.js";
 
+const resolvers = {
+  sayHello: sayHelloHandler,
+  getTasksByUserId: getTasksByUserIdHandler,
+};
 export const lambdaHandler = async (event) => {
-  console.log("Event: ", JSON.stringify(event));
-  const { fieldName } = event.info;
-  console.log("Field Name: ", fieldName); //here field name is nothing but the query/mutation name
-  if (fieldName === "sayHello") {
-    return sayHello(event);
+  console.log("Received event:", JSON.stringify(event, null, 2));
+  const { fieldName } = event.info || {};
+  const handler = resolvers[fieldName];
+  if (handler) {
+    try {
+      return await handler(event);
+    } catch (error) {
+      console.error("Error executing handler for", fieldName, ":", error);
+      throw error;
+    }
+  } else {
+    console.error("No handler attached for field:", fieldName);
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ error: "No handler attached for the request" }),
+    };
   }
 };

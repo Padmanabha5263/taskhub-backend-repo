@@ -1,11 +1,12 @@
 type Task {
   id: ID!
-  name: String!
+  taskname: String!
   description: String
 }
+
 type Query {
   sayHello(name: String!): String!
-  getTasksByUserId(userid: ID!): [Task]
+  getTasksByUserId(userid: String!): [Task]!
 }
 
 schema {
