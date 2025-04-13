@@ -1,0 +1,13 @@
+type GreetingsResponse {
+  statusCode: Int @aws_api_key @aws_oidc
+  message: String @aws_api_key @aws_oidc
+  data: String @aws_api_key @aws_oidc
+}
+
+type Query {
+  sayHello(name: String): GreetingsResponse @aws_api_key @aws_oidc
+}
+
+schema {
+  query: Query
+}

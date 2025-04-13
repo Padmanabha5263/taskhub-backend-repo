@@ -4,93 +4,75 @@ Description: >
   Backend-taskhub-repo
 
   Sample SAM Template for Backend-taskhub-repo
+Globals:
+  Function:
+    Runtime: nodejs18.x
+    Timeout: 10
+    MemorySize: 128
 
 Resources:
   ## Lambda Function
-  TaskHubLambdaFunction:
+  GreetingsLambdaFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: lambda.lambdaHandler
-      Runtime: nodejs20.x
-      CodeUri: src/
-      MemorySize: 128
-      Timeout: 5
-      Policies:
-        - Statement:
-            - Effect: Allow
-              Action:
-                - dynamodb:PutItem
-                - dynamodb:GetItem
-                - dynamodb:Scan
-                - dynamodb:Query
-                - dynamodb:UpdateItem
-                - dynamodb:DeleteItem
-              Resource: arn:aws:dynamodb:ap-south-1:977098988167:table/task
-
-  GreetingsResolver:
-    Type: AWS::AppSync::Resolver
-    DependsOn: TaskHubLambdaDataSource
-    Properties:
-      ApiId: !GetAtt TaskHubAppsyncApi.ApiId
-      TypeName: Query
-      FieldName: sayHello
-      DataSourceName: TaskHubLambdaDataSource
-
-  GetTasksByUserIdResolver:
-    Type: AWS::AppSync::Resolver
-    DependsOn: TaskHubLambdaDataSource
-    Properties:
-      ApiId: !GetAtt TaskHubAppsyncApi.ApiId
-      TypeName: Query
-      FieldName: getTasksByUserId
-      DataSourceName: TaskHubLambdaDataSource
-
-  AppsyncApikey:
-    Type: AWS::AppSync::ApiKey
-    Properties:
-      ApiId: !GetAtt TaskHubAppsyncApi.ApiId
-      Expires: 1746057599
+      FunctionName: sayHello
+      Handler: index.lambdaHandler
+      CodeUri: src/handlers/sayHello
 
   ## AppSync API
   TaskHubAppsyncApi:
-    Type: AWS::AppSync::GraphQLApi
+    Type: AWS::Serverless::GraphQLApi
     Properties:
       Name: TaskHubAppsyncApi
-      AuthenticationType: API_KEY
+      SchemaUri: src/schema.graphql
+      DataSources:
+        Lambda:
+          GreetingsLambdaDataSource:
+            Description: it will greet to the user
+            FunctionArn: !GetAtt GreetingsLambdaFunction.Arn
+      Functions:
+        greetLambdaInvoker:
+          Runtime:
+            Name: APPSYNC_JS
+            Version: 1.0.0
+          DataSource: GreetingsLambdaDataSource
+          InlineCode: |
+            export function request(ctx) {
+              return {
+                operation: 'Invoke',
+                payload: ctx.args
+              };
+            }
 
-  TaskHubGraphQLSchema:
-    Type: AWS::AppSync::GraphQLSchema
-    Properties:
-      ApiId: !GetAtt TaskHubAppsyncApi.ApiId
-      DefinitionS3Location: src/schema/schema.graphql
+            export function response(ctx) {
+              return ctx.result;
+            }
 
-  ## Data Source - Lambda
-  TaskHubLambdaDataSource:
-    Type: AWS::AppSync::DataSource
-    Properties:
-      ApiId: !GetAtt TaskHubAppsyncApi.ApiId
-      Name: TaskHubLambdaDataSource
-      Type: AWS_LAMBDA
-      LambdaConfig:
-        LambdaFunctionArn: !GetAtt TaskHubLambdaFunction.Arn
-      ServiceRoleArn: !GetAtt TaskHubAppSyncLambdaRole.Arn
+      Auth:
+        Type: OPENID_CONNECT
+        OpenIDConnect:
+          ClientId: 0oao20hif8aWVlBmZ5d7
+          Issuer: https://dev-64276204.okta.com
+        Additional:
+          - Type: API_KEY
+      ApiKeys:
+        TaskHubAppsyncApiKey:
+          Description: TaskHubAppsyncApiKey api key
 
-  ## IAM Role for AppSync to Invoke Lambda
-  TaskHubAppSyncLambdaRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: appsync.amazonaws.com
-            Action: sts:AssumeRole
-      Policies:
-        - PolicyName: LambdaInvokePolicy
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action: lambda:InvokeFunction
-                Resource: !GetAtt TaskHubLambdaFunction.Arn
+      Resolvers:
+        Query:
+          sayHello:
+            FieldName: sayHello
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - greetLambdaInvoker
+
+Outputs:
+  MyGraphQLAPI:
+    Description: AppSync API
+    Value: !GetAtt TaskHubAppsyncApi.GraphQLUrl
+  MyGraphQLAPIMyApiKey:
+    Description: API Key for authentication
+    Value: !GetAtt TaskHubAppsyncApi.ApiId

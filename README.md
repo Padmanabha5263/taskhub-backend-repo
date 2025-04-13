@@ -2,13 +2,14 @@
 
 creating the serverless appsync graphql api using the services like lambda, dynamodb, appsync service using SAM framework.
 
-### SAM Commands
+### AWS SAM Commands
 
 1. **sam validate** <br/> this command will validate the infrastructure code i,e .yaml file.
-2. **sam build**<br/> this command will create an build file.
+2. **sam build** <br/> this command will create an build file.
 3. **sam local invoke TaskHubLambdaFunction --event events/event.json --log-file sam-log.txt**<br/> This command will execute the lambda function(TaskHubLambdaFunction) locally with docker.
-4. **sam init** initlise the sam project
-5. **sam deploy --guided --profile profile-name**
+4. **sam init** <br/> initlise the sam project
+5. **sam deploy --guided --profile profile-name** <br/> this command will deploy the build file which is created using sam build command and you can verify the change after successfull deployment
+6. **aws sso login --profile profile-name** <br/> login to the aws via cli way
 
 ## GraphQL Api
 
@@ -17,4 +18,7 @@ creating the serverless appsync graphql api using the services like lambda, dyna
 
 # Impotant Links
 
-1. markdonw: https://www.markdownguide.org/cheat-sheet/ <br/>
+1. markdown: https://www.markdownguide.org/cheat-sheet/ <br/> https://code.visualstudio.com/docs/languages/markdown#_markdown-preview<br/>
+2. convert markdown file to pdf,word online: https://cloudconvert.com/md-to-docx<br/>
+3. adding the authentication to the graphql api via SAM: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-graphqlapi.html<br/>
+4. graphql sam yml template for both dynamodb and lambda as a datasource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-graphqlapi.html <br/>
