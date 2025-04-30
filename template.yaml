@@ -16,8 +16,23 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: sayHello
-      Handler: index.lambdaHandler
-      CodeUri: src/handlers/sayHello
+      Handler: sayHello.SayHelloHandler
+      CodeUri: src/handlers
+
+  GetTasksByUserIdLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: getTasksByUserId
+      Handler: getTasksByUserId.getTasksByUserIdHandler
+      CodeUri: src/handlers
+      Policies:
+        - Statement:
+            Effect: Allow
+            Action:
+              - dynamodb:Query
+            Resource:
+              - arn:aws:dynamodb:ap-south-1:977098988167:table/task
+              - arn:aws:dynamodb:ap-south-1:977098988167:table/task/index/userid-index
 
   ## AppSync API
   TaskHubAppsyncApi:
@@ -30,29 +45,27 @@ Resources:
           GreetingsLambdaDataSource:
             Description: it will greet to the user
             FunctionArn: !GetAtt GreetingsLambdaFunction.Arn
+          GetTaskByUserIdLambdaDataSource:
+            Description: it will greet to the user
+            FunctionArn: !GetAtt GetTasksByUserIdLambdaFunction.Arn
       Functions:
         greetLambdaInvoker:
           Runtime:
             Name: APPSYNC_JS
             Version: 1.0.0
           DataSource: GreetingsLambdaDataSource
-          InlineCode: |
-            export function request(ctx) {
-              return {
-                operation: 'Invoke',
-                payload: ctx.args
-              };
-            }
-
-            export function response(ctx) {
-              return ctx.result;
-            }
-
+          CodeUri: src/gql/greetings.js
+        GetTasksByUseridInvoker:
+          Runtime:
+            Name: APPSYNC_JS
+            Version: 1.0.0
+          DataSource: GetTaskByUserIdLambdaDataSource
+          CodeUri: src/gql/getTasksByUserId.js
       Auth:
         Type: OPENID_CONNECT
         OpenIDConnect:
-          ClientId: 0oao20hif8aWVlBmZ5d7
-          Issuer: https://dev-64276204.okta.com
+          ClientId: n8nj3s96pr06h0eghdcun8qt2
+          Issuer: https://cognito-idp.ap-south-1.amazonaws.com/ap-south-1_x1WoxDDV3
         Additional:
           - Type: API_KEY
       ApiKeys:
@@ -68,6 +81,13 @@ Resources:
               Version: 1.0.0
             Pipeline:
               - greetLambdaInvoker
+          getTasksByUserId:
+            FieldName: getTasksByUserId
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - GetTasksByUseridInvoker
 
 Outputs:
   MyGraphQLAPI:

@@ -1,52 +1,6 @@
-START RequestId: 6d7b15bf-a696-46ec-bb6a-5d4c47d26951 Version: $LATEST
-2025-04-13T07:03:56.739Z	0816b56e-8ad4-4256-ae9c-aee976c96786	INFO	Received event: {
-  "arguments": {
-    "userid": "1234232323625342"
-  },
-  "identity": null,
-  "source": null,
-  "request": {
-    "headers": {
-      "x-amzn-appsync-is-vpce-request": "false",
-      "x-forwarded-for": "152.58.244.145, 15.158.42.116",
-      "cloudfront-is-tablet-viewer": "false",
-      "cloudfront-viewer-country": "IN",
-      "x-amzn-requestid": "9ec6a5ac-565c-4578-89fe-eabc754291e8",
-      "x-amzn-remote-ip": "152.58.244.145",
-      "via": "1.1 df26f98dc48faec49f463a51b15e8efc.cloudfront.net (CloudFront)",
-      "x-api-key": "da2-uracpl3stna3vfekz3jypp5wmy",
-      "cloudfront-forwarded-proto": "https",
-      "content-type": "application/json",
-      "x-amzn-trace-id": "Root=1-67f293bb-38ae2d0372d65d49572cd669",
-      "x-amz-cf-id": "lPcY3GlnrchcDsNL1giM3sami9ZLCHDZ-q3YK_9CH6M9AourTyXqCg==",
-      "content-length": "203",
-      "x-forwarded-proto": "https",
-      "host": "suozcq7gn5cunezjseieb6ze3e.appsync-api.ap-south-1.amazonaws.com",
-      "user-agent": "PostmanClient/11.39.5 (AppId=a640b538-13e6-4923-a207-5bc7e41c8930)",
-      "cloudfront-is-desktop-viewer": "true",
-      "accept": "*/*",
-      "cloudfront-is-mobile-viewer": "false",
-      "x-forwarded-port": "443",
-      "cloudfront-is-smarttv-viewer": "false",
-      "cloudfront-viewer-asn": "55836"
-    },
-    "domainName": null
-  },
-  "prev": null,
-  "info": {
-    "fieldName": "getTasksByUserId",
-    "selectionSetList": [
-      "taskname",
-      "id",
-      "description"
-    ],
-    "selectionSetGraphQL": "{\n  taskname\n  id\n  description\n}",
-    "variables": {},
-    "parentTypeName": "Query"
-  },
-  "stash": {}
-}
-2025-04-13T07:03:56.742Z	0816b56e-8ad4-4256-ae9c-aee976c96786	INFO	say hello handler Guest
-END RequestId: 0816b56e-8ad4-4256-ae9c-aee976c96786
-REPORT RequestId: 0816b56e-8ad4-4256-ae9c-aee976c96786	Init Duration: 0.21 ms	Duration: 469.59 ms	Billed Duration: 470 ms	Memory Size: 128 MB	Max Memory Used: 128 MB	
-{"statusCode": 200, "message": "Successfully greeted", "data": "Hello, Guest! Welcome to TaskHub."}
+START RequestId: dd11a55b-b3d5-442b-a15e-951314219ed5 Version: $LATEST
+2025-04-20T09:01:47.532Z	undefined	ERROR	Uncaught Exception 	{"errorType":"Runtime.UserCodeSyntaxError","errorMessage":"SyntaxError: Cannot use import statement outside a module","stack":["Runtime.UserCodeSyntaxError: SyntaxError: Cannot use import statement outside a module","    at _loadUserApp (file:///var/runtime/index.mjs:1084:17)","    at async UserFunction.js.module.exports.load (file:///var/runtime/index.mjs:1119:21)","    at async start (file:///var/runtime/index.mjs:1282:23)","    at async file:///var/runtime/index.mjs:1288:1"]}
+20 Apr 2025 09:01:47,560 [ERROR] (rapid) Init failed error=Runtime exited with error: exit status 129 InvokeID=
+20 Apr 2025 09:01:47,560 [ERROR] (rapid) Invoke failed error=Runtime exited with error: exit status 129 InvokeID=1ff54b3a-7c85-4cff-9ecd-0414cafb4e3a
+20 Apr 2025 09:01:47,561 [ERROR] (rapid) Invoke DONE failed: Sandbox.Failure
+{"errorType": "Runtime.UserCodeSyntaxError", "errorMessage": "SyntaxError: Cannot use import statement outside a module", "trace": ["Runtime.UserCodeSyntaxError: SyntaxError: Cannot use import statement outside a module", "    at _loadUserApp (file:///var/runtime/index.mjs:1084:17)", "    at async UserFunction.js.module.exports.load (file:///var/runtime/index.mjs:1119:21)", "    at async start (file:///var/runtime/index.mjs:1282:23)", "    at async file:///var/runtime/index.mjs:1288:1"]}

@@ -18,7 +18,13 @@ creating the serverless appsync graphql api using the services like lambda, dyna
 
 # Impotant Links
 
-1. markdown: https://www.markdownguide.org/cheat-sheet/ <br/> https://code.visualstudio.com/docs/languages/markdown#_markdown-preview<br/>
-2. convert markdown file to pdf,word online: https://cloudconvert.com/md-to-docx<br/>
-3. adding the authentication to the graphql api via SAM: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-graphqlapi.html<br/>
-4. graphql sam yml template for both dynamodb and lambda as a datasource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-graphqlapi.html <br/>
+1. markdown:<br/>
+   https://www.markdownguide.org/cheat-sheet/ <br/>
+   https://code.visualstudio.com/docs/languages/markdown#_markdown-preview
+2. convert markdown file to pdf,word online: <br/>
+   https://cloudconvert.com/md-to-docx
+3. adding the authentication to the graphql api via SAM:<br/>
+   https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-graphqlapi.html<br/>
+   https://medium.com/@ednergizer/multiple-authorization-methods-in-a-single-graphql-api-with-aws-appsync-security-at-the-data-7feeaa968486
+4. graphql sam yml template for both dynamodb and lambda as a datasource: <br/>
+   https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-graphqlapi.html

@@ -1,11 +1,29 @@
-type GreetingsResponse {
+interface Response {
+  statusCode: Int @aws_api_key @aws_oidc
+  message: String @aws_api_key @aws_oidc
+}
+
+type GreetingsResponse implements Response {
   statusCode: Int @aws_api_key @aws_oidc
   message: String @aws_api_key @aws_oidc
   data: String @aws_api_key @aws_oidc
 }
 
+type Task {
+  id: ID! @aws_api_key @aws_oidc
+  taskname: String! @aws_api_key @aws_oidc
+  description: String @aws_api_key @aws_oidc
+}
+
+type TasksResponse implements Response {
+  statusCode: Int @aws_api_key @aws_oidc
+  message: String @aws_api_key @aws_oidc
+  data: [Task] @aws_api_key @aws_oidc
+}
+
 type Query {
   sayHello(name: String): GreetingsResponse @aws_api_key @aws_oidc
+  getTasksByUserId(userid: String): TasksResponse @aws_api_key @aws_oidc
 }
 
 schema {

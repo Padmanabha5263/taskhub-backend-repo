@@ -1,4 +1,4 @@
-exports.lambdaHandler = async (event) => {
+export const SayHelloHandler = async (event) => {
   console.log("Received event:", JSON.stringify(event));
   try {
     const name = event?.name || "Guest";
@@ -11,7 +11,7 @@ exports.lambdaHandler = async (event) => {
     return {
       success: 500,
       message: `Something went wrong: ${error.message}`,
-      data: null,
+      data: error.message,
     };
   }
 };
