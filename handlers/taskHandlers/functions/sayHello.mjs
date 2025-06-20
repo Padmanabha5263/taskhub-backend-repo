@@ -1,7 +1,7 @@
 export const SayHelloHandler = async (event) => {
   console.log("Received event:", JSON.stringify(event));
   try {
-    const name = event?.name || "Guest";
+    const name = event?.arguments?.name || "Guest";
     return {
       statusCode: 200,
       message: "Successfully greeted",

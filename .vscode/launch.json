@@ -8,18 +8,27 @@
       "type": "node",
       "name": "getTasksByUserId",
       "envFile": "${workspaceFolder}/.env",
-      "program": "${workspaceFolder}/test/getTasksByUserIdTest.mjs",
+      "program": "${workspaceFolder}/localtest/getTasksByUserIdTest.mjs",
       "request": "launch",
+      "outputCapture": "std",
       "console": "integratedTerminal",
-      "skipFiles": ["<node_internals>/**"]
+      "skipFiles": ["<node_internals>/**"],
+      "env": {
+        "AWS_PROFILE": "AdministratorAccess-977098988167"
+      }
     },
     {
       "type": "node",
       "name": "sayHello",
       "envFile": "${workspaceFolder}/.env",
-      "program": "${workspaceFolder}/test/sayHelloTest.mjs",
+      "outputCapture": "std",
+      "program": "${workspaceFolder}/localtest/sayHelloTest.mjs",
       "request": "launch",
-      "skipFiles": ["<node_internals>/**"]
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
+      "env": {
+        "AWS_PROFILE": "AdministratorAccess-977098988167"
+      }
     }
   ]
 }

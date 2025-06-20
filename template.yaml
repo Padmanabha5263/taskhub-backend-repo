@@ -6,61 +6,67 @@ Description: >
   Sample SAM Template for Backend-taskhub-repo
 Globals:
   Function:
-    Runtime: nodejs18.x
+    Runtime: nodejs20.x
     Timeout: 10
     MemorySize: 128
 
 Resources:
   ## Lambda Function
-  GreetingsLambdaFunction:
-    Type: AWS::Serverless::Function
+  TaskHubLambdaLayer:
+    Type: AWS::Serverless::LayerVersion
     Properties:
-      FunctionName: sayHello
-      Handler: sayHello.SayHelloHandler
-      CodeUri: src/handlers
+      LayerName: taskhub-layer
+      Description: Dependencies for the taskhub project
+      ContentUri: lambdalayer/taskhubdependency
+      CompatibleRuntimes:
+        - nodejs20.x
+      CompatibleArchitectures:
+        - arm64
+      RetentionPolicy: Delete
+    Metadata:
+      BuildMethod: nodejs20.x
+      BuildArchitecture: arm64
 
-  GetTasksByUserIdLambdaFunction:
+  TaskHubLambdaFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: getTasksByUserId
-      Handler: getTasksByUserId.getTasksByUserIdHandler
-      CodeUri: src/handlers
+      FunctionName: taskHubHandler
+      Handler: index.taskHubApiHandler
+      CodeUri: handlers/taskHandlers
       Policies:
         - Statement:
             Effect: Allow
             Action:
               - dynamodb:Query
+              - dynamodb:PutItem
+              - dynamodb:GetItem
+              - dynamodb:UpdateItem
+              - dynamodb:DeleteItem
+              - dynamodb:Scan
             Resource:
               - arn:aws:dynamodb:ap-south-1:977098988167:table/task
               - arn:aws:dynamodb:ap-south-1:977098988167:table/task/index/userid-index
+      Layers:
+        - !Ref TaskHubLambdaLayer
 
   ## AppSync API
   TaskHubAppsyncApi:
     Type: AWS::Serverless::GraphQLApi
     Properties:
       Name: TaskHubAppsyncApi
-      SchemaUri: src/schema.graphql
+      SchemaUri: schema.graphql
       DataSources:
         Lambda:
-          GreetingsLambdaDataSource:
-            Description: it will greet to the user
-            FunctionArn: !GetAtt GreetingsLambdaFunction.Arn
           GetTaskByUserIdLambdaDataSource:
             Description: it will greet to the user
-            FunctionArn: !GetAtt GetTasksByUserIdLambdaFunction.Arn
+            FunctionArn: !GetAtt TaskHubLambdaFunction.Arn
       Functions:
-        greetLambdaInvoker:
-          Runtime:
-            Name: APPSYNC_JS
-            Version: 1.0.0
-          DataSource: GreetingsLambdaDataSource
-          CodeUri: src/gql/greetings.js
         GetTasksByUseridInvoker:
           Runtime:
             Name: APPSYNC_JS
             Version: 1.0.0
           DataSource: GetTaskByUserIdLambdaDataSource
-          CodeUri: src/gql/getTasksByUserId.js
+          CodeUri: gql/requestsAndResponse.mjs
       Auth:
         Type: OPENID_CONNECT
         OpenIDConnect:
@@ -80,7 +86,7 @@ Resources:
               Name: APPSYNC_JS
               Version: 1.0.0
             Pipeline:
-              - greetLambdaInvoker
+              - GetTasksByUseridInvoker
           getTasksByUserId:
             FieldName: getTasksByUserId
             Runtime:
