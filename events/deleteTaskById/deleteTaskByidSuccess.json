@@ -1,6 +1,9 @@
 {
-  "field": "getTasksByUserId",
-  "arguments": { "id": "123345" },
+  "field": "deleteTaskById",
+  "arguments": {
+    "userid": "123423232332233",
+    "id": "9823777121212"
+  },
   "identity": null,
   "source": null,
   "request": {

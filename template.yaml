@@ -57,15 +57,15 @@ Resources:
       SchemaUri: schema.graphql
       DataSources:
         Lambda:
-          GetTaskByUserIdLambdaDataSource:
+          TaskHubLambdaDataSource:
             Description: it will greet to the user
             FunctionArn: !GetAtt TaskHubLambdaFunction.Arn
       Functions:
-        GetTasksByUseridInvoker:
+        TaskLambdaInvoker:
           Runtime:
             Name: APPSYNC_JS
             Version: 1.0.0
-          DataSource: GetTaskByUserIdLambdaDataSource
+          DataSource: TaskHubLambdaDataSource
           CodeUri: gql/requestsAndResponse.mjs
       Auth:
         Type: OPENID_CONNECT
@@ -86,14 +86,22 @@ Resources:
               Name: APPSYNC_JS
               Version: 1.0.0
             Pipeline:
-              - GetTasksByUseridInvoker
+              - TaskLambdaInvoker
           getTasksByUserId:
             FieldName: getTasksByUserId
             Runtime:
               Name: APPSYNC_JS
               Version: 1.0.0
             Pipeline:
-              - GetTasksByUseridInvoker
+              - TaskLambdaInvoker
+        Mutation:
+          deleteTaskById:
+            FieldName: deleteTaskById
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - TaskLambdaInvoker
 
 Outputs:
   MyGraphQLAPI:

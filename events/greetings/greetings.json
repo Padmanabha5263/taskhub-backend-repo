@@ -1,27 +1,26 @@
 {
-  "arguments": {
-    "name": "padmanabha"
-  },
+  "field": "sayHello",
+  "arguments": { "name": "abc" },
   "identity": null,
   "source": null,
   "request": {
     "headers": {
       "x-amzn-appsync-is-vpce-request": "false",
-      "x-forwarded-for": "152.59.242.75, 15.158.42.110",
+      "x-forwarded-for": "152.57.112.17,15.158.42.74",
       "cloudfront-is-tablet-viewer": "false",
       "cloudfront-viewer-country": "IN",
-      "x-amzn-requestid": "624577a6-22d3-47e0-8584-0dd28310a170",
-      "x-amzn-remote-ip": "152.59.242.75",
-      "via": "1.1 3ba03fbd4da6026f2ea63b657283d714.cloudfront.net (CloudFront)",
-      "x-api-key": "da2-fsdhfjjsrzhl5blnfukqk2suju",
+      "x-amzn-requestid": "dbcd5b11-86dc-41fc-a143-8246561abd83",
+      "x-amzn-remote-ip": "152.57.112.17",
+      "via": "1.1 e5bd27175111bd8ddfb23c21aab6ccc2.cloudfront.net (CloudFront)",
+      "x-api-key": "da2-rzxcat5dcvallcyc5krtaveri4",
       "cloudfront-forwarded-proto": "https",
       "content-type": "application/json",
-      "x-amzn-trace-id": "Root=1-67e2763f-042c8ef65709a66635da66e0",
-      "x-amz-cf-id": "VUgmFS3uov1B15qQs5KBROjtcqF7G1ogJKWfq6f0WLHTWG64npP7Mw==",
-      "content-length": "111",
+      "x-amzn-trace-id": "Root=1-6855649c-3e4fb2135b155a93323c8f85",
+      "x-amz-cf-id": "7ymRJqHVcv7vf61kpgR83i3iCgVPuWb5xAW-eLyxo7jSBk6CkL8aPQ==",
+      "content-length": "164",
       "x-forwarded-proto": "https",
-      "host": "suozcq7gn5cunezjseieb6ze3e.appsync-api.ap-south-1.amazonaws.com",
-      "user-agent": "PostmanClient/11.37.5 (AppId=a640b538-13e6-4923-a207-5bc7e41c8930)",
+      "host": "kom7uhysevepppkalvgsi5f5ve.appsync-api.ap-south-1.amazonaws.com",
+      "user-agent": "PostmanClient/11.50.4-250619-1201 (AppId=a640b538-13e6-4923-a207-5bc7e41c8930)",
       "cloudfront-is-desktop-viewer": "true",
       "accept": "*/*",
       "cloudfront-is-mobile-viewer": "false",
@@ -30,14 +29,5 @@
       "cloudfront-viewer-asn": "55836"
     },
     "domainName": null
-  },
-  "prev": null,
-  "info": {
-    "fieldName": "sayHello",
-    "selectionSetList": [],
-    "selectionSetGraphQL": "",
-    "variables": {},
-    "parentTypeName": "Query"
-  },
-  "stash": {}
+  }
 }

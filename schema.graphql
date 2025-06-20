@@ -25,7 +25,10 @@ type Query {
   sayHello(name: String): GreetingsResponse @aws_api_key @aws_oidc
   getTasksByUserId(userid: ID!): TasksResponse @aws_api_key @aws_oidc
 }
-
+type Mutation {
+  deleteTaskById(userid: ID!, id: ID!): TasksResponse @aws_api_key @aws_oidc
+}
 schema {
   query: Query
+  mutation: Mutation
 }
