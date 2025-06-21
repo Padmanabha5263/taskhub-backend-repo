@@ -3,6 +3,7 @@ import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { getTasksByUserIdHandler } from "./functions/getTasksByUserId.mjs";
 import { SayHelloHandler } from "./functions/sayHello.mjs";
 import { deleteTaskByIdHandler } from "./functions/deleteTaskById.mjs";
+import { createTaskHandler } from "./functions/createTask.mjs";
 
 const docDBClient = DynamoDBDocumentClient.from(
   new DynamoDBClient({ region: "ap-south-1" })
@@ -20,6 +21,9 @@ export const taskHubApiHandler = async (event) => {
       break;
     case "deleteTaskById":
       response = await deleteTaskByIdHandler(event, docDBClient);
+      break;
+    case "createTask":
+      response = await createTaskHandler(event, docDBClient);
       break;
     default:
       response = {

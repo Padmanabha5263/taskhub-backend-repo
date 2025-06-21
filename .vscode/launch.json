@@ -32,6 +32,19 @@
     },
     {
       "type": "node",
+      "name": "createTask",
+      "envFile": "${workspaceFolder}/.env",
+      "outputCapture": "std",
+      "program": "${workspaceFolder}/localtest/createTaskTest.mjs",
+      "request": "launch",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
+      "env": {
+        "AWS_PROFILE": "AdministratorAccess-977098988167"
+      }
+    },
+    {
+      "type": "node",
       "name": "deleteTaskById",
       "envFile": "${workspaceFolder}/.env",
       "outputCapture": "std",

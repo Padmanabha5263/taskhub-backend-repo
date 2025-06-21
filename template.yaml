@@ -102,7 +102,13 @@ Resources:
               Version: 1.0.0
             Pipeline:
               - TaskLambdaInvoker
-
+          createTask:
+            FieldName: createTask
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - TaskLambdaInvoker
 Outputs:
   MyGraphQLAPI:
     Description: AppSync API

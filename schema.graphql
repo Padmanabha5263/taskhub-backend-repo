@@ -3,6 +3,10 @@ interface Response {
   message: String @aws_api_key @aws_oidc
 }
 
+type CreateTaskResponse implements Response {
+  statusCode: Int @aws_api_key @aws_oidc
+  message: String @aws_api_key @aws_oidc
+}
 type GreetingsResponse implements Response {
   statusCode: Int @aws_api_key @aws_oidc
   message: String @aws_api_key @aws_oidc
@@ -27,6 +31,11 @@ type Query {
 }
 type Mutation {
   deleteTaskById(userid: ID!, id: ID!): TasksResponse @aws_api_key @aws_oidc
+  createTask(
+    userid: ID!
+    description: String
+    taskname: String
+  ): CreateTaskResponse @aws_api_key @aws_oidc
 }
 schema {
   query: Query
