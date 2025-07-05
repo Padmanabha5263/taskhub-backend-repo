@@ -1,41 +1,45 @@
 interface Response {
-  statusCode: Int @aws_api_key @aws_oidc
-  message: String @aws_api_key @aws_oidc
+  statusCode: Int @aws_api_key @aws_cognito_user_pools
+  message: String @aws_api_key @aws_cognito_user_pools
 }
 
 type CreateTaskResponse implements Response {
-  statusCode: Int @aws_api_key @aws_oidc
-  message: String @aws_api_key @aws_oidc
+  statusCode: Int @aws_api_key @aws_cognito_user_pools
+  message: String @aws_api_key @aws_cognito_user_pools
 }
 type GreetingsResponse implements Response {
-  statusCode: Int @aws_api_key @aws_oidc
-  message: String @aws_api_key @aws_oidc
-  data: String @aws_api_key @aws_oidc
+  statusCode: Int @aws_api_key @aws_cognito_user_pools
+  message: String @aws_api_key @aws_cognito_user_pools
+  data: String @aws_api_key @aws_cognito_user_pools
 }
 
 type Task {
-  id: ID! @aws_api_key @aws_oidc
-  taskname: String! @aws_api_key @aws_oidc
-  description: String @aws_api_key @aws_oidc
+  id: ID! @aws_api_key @aws_cognito_user_pools
+  taskname: String! @aws_api_key @aws_cognito_user_pools
+  description: String @aws_api_key @aws_cognito_user_pools
 }
 
 type TasksResponse implements Response {
-  statusCode: Int @aws_api_key @aws_oidc
-  message: String @aws_api_key @aws_oidc
-  data: [Task] @aws_api_key @aws_oidc
+  statusCode: Int @aws_api_key @aws_cognito_user_pools
+  message: String @aws_api_key @aws_cognito_user_pools
+  data: [Task] @aws_api_key @aws_cognito_user_pools
 }
 
 type Query {
-  sayHello(name: String): GreetingsResponse @aws_api_key @aws_oidc
-  getTasksByUserId(userid: ID!): TasksResponse @aws_api_key @aws_oidc
+  sayHello(name: String): GreetingsResponse @aws_api_key @aws_cognito_user_pools
+  getTasksByUserId(userid: ID!): TasksResponse
+    @aws_api_key
+    @aws_cognito_user_pools
 }
 type Mutation {
-  deleteTaskById(userid: ID!, id: ID!): TasksResponse @aws_api_key @aws_oidc
+  deleteTaskById(userid: ID!, id: ID!): TasksResponse
+    @aws_api_key
+    @aws_cognito_user_pools
   createTask(
     userid: ID!
     description: String
     taskname: String
-  ): CreateTaskResponse @aws_api_key @aws_oidc
+  ): CreateTaskResponse @aws_api_key @aws_cognito_user_pools
 }
 schema {
   query: Query

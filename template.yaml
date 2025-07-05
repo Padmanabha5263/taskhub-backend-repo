@@ -68,10 +68,12 @@ Resources:
           DataSource: TaskHubLambdaDataSource
           CodeUri: gql/requestsAndResponse.mjs
       Auth:
-        Type: OPENID_CONNECT
-        OpenIDConnect:
-          ClientId: n8nj3s96pr06h0eghdcun8qt2
-          Issuer: https://cognito-idp.ap-south-1.amazonaws.com/ap-south-1_x1WoxDDV3
+        Type: AMAZON_COGNITO_USER_POOLS
+        UserPool:
+          UserPoolId: ap-south-1_x1WoxDDV3
+          AppIdClientRegex: n8nj3s96pr06h0eghdcun8qt2
+          AwsRegion: ap-south-1
+          DefaultAction: ALLOW
         Additional:
           - Type: API_KEY
       ApiKeys:
