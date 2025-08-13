@@ -2,6 +2,16 @@
 
 creating the serverless appsync graphql api using the services like lambda, dynamodb, appsync service using SAM framework.
 
+### Project installation guide
+1. first thing you should have aws account with developer role and login to your aws account <br/>
+. make sure you have installed vscode, aws sam cli, aws cli, git, nodejs softwares in your system <br/>
+. download the project with git clone command<br/>
+. execute aws sso login --profile aws-developer-profile-role  <br/>
+. execute sam validate <br/>
+. execute sam build<br/>
+. execute sam deploy --guided --profile aws-developer-profile-role <br/>
+
+
 ### AWS SAM Commands
 
 1. **sam validate** <br/> this command will validate the infrastructure code i,e .yaml file.

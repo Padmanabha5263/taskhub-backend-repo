@@ -10,8 +10,45 @@ Globals:
     Timeout: 10
     MemorySize: 128
 
+Parameters:
+  CognitoUserPoolName:
+    Type: String
+    Default: taskhub-user-pool
+    Description: Name of the Cognito User Pool for user authentication
+  CognitoUserPoolClientName:
+    Type: String
+    Default: taskhub-spa-web-client
+    Description: Name of the Cognito User Pool Client for React single page application (SPA)
+  AppsyncGraphqlName:
+    Type: String
+    Default: Taskhub-appsync-api
+    Description: Name of the AppSync GraphQL API for the task hub application
+
 Resources:
-  ## Lambda Function
+  # Lambda function for saving the user information in DynamoDB after user signup
+  CognitoPostUserSignupTrigger:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: cognitoPostUserSignupTrigger
+      CodeUri: src/handlers/cognito-post-user-signup-trigger
+      Handler: index.handler
+      Layers:
+        - !Ref TaskHubLambdaLayer
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersDynamoDBTable
+
+  # Hello world Lambda function that will greet user
+  HelloWorldLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: helloWorld
+      CodeUri: src/handlers/greetings
+      Handler: index.SayHelloHandler
+      Layers:
+        - !Ref TaskHubLambdaLayer
+
+  # lambda layer for common dependencies
   TaskHubLambdaLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
@@ -27,59 +64,39 @@ Resources:
       BuildMethod: nodejs20.x
       BuildArchitecture: arm64
 
-  TaskHubLambdaFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: taskHubHandler
-      Handler: index.taskHubApiHandler
-      CodeUri: handlers/taskHandlers
-      Policies:
-        - Statement:
-            Effect: Allow
-            Action:
-              - dynamodb:Query
-              - dynamodb:PutItem
-              - dynamodb:GetItem
-              - dynamodb:UpdateItem
-              - dynamodb:DeleteItem
-              - dynamodb:Scan
-            Resource:
-              - arn:aws:dynamodb:ap-south-1:977098988167:table/task
-              - arn:aws:dynamodb:ap-south-1:977098988167:table/task/index/userid-index
-      Layers:
-        - !Ref TaskHubLambdaLayer
-
-  ## AppSync API
-  TaskHubAppsyncApi:
+  # Appsync GraphQL API for the task hub application
+  TaskHubAppsyncGraphQLApi:
     Type: AWS::Serverless::GraphQLApi
     Properties:
-      Name: TaskHubAppsyncApi
-      SchemaUri: schema.graphql
-      DataSources:
-        Lambda:
-          TaskHubLambdaDataSource:
-            Description: it will greet to the user
-            FunctionArn: !GetAtt TaskHubLambdaFunction.Arn
-      Functions:
-        TaskLambdaInvoker:
-          Runtime:
-            Name: APPSYNC_JS
-            Version: 1.0.0
-          DataSource: TaskHubLambdaDataSource
-          CodeUri: gql/requestsAndResponse.mjs
+      Name: !Ref AppsyncGraphqlName
+      SchemaUri: src/schema.graphql
+      ApiKeys:
+        TaskHubApiKey:
+          ApiKeyId: taskhubapikey12345
+          Description: TaskHub API Key
+          ExpiresOn: 1762949209
       Auth:
         Type: AMAZON_COGNITO_USER_POOLS
         UserPool:
-          UserPoolId: ap-south-1_x1WoxDDV3
-          AppIdClientRegex: n8nj3s96pr06h0eghdcun8qt2
-          AwsRegion: ap-south-1
+          AwsRegion: !Ref AWS::Region
+          UserPoolId: !Ref TaskHubUserPool
           DefaultAction: ALLOW
         Additional:
           - Type: API_KEY
-      ApiKeys:
-        TaskHubAppsyncApiKey:
-          Description: TaskHubAppsyncApiKey api key
-
+      DataSources:
+        Lambda:
+          HelloWorldLambdaDataSource:
+            Description: this lambda data source connected to hello world lambda funtion
+            Name: HelloWorldLambdaDataSource
+            FunctionArn: !GetAtt HelloWorldLambda.Arn
+      Functions:
+        LambdaInvoker:
+          Name: LambdaInvoker
+          CodeUri: src/gql/requestsAndResponse.mjs
+          DataSource: HelloWorldLambdaDataSource
+          Runtime:
+            Name: APPSYNC_JS
+            Version: 1.0.0
       Resolvers:
         Query:
           sayHello:
@@ -88,33 +105,100 @@ Resources:
               Name: APPSYNC_JS
               Version: 1.0.0
             Pipeline:
-              - TaskLambdaInvoker
-          getTasksByUserId:
-            FieldName: getTasksByUserId
-            Runtime:
-              Name: APPSYNC_JS
-              Version: 1.0.0
-            Pipeline:
-              - TaskLambdaInvoker
-        Mutation:
-          deleteTaskById:
-            FieldName: deleteTaskById
-            Runtime:
-              Name: APPSYNC_JS
-              Version: 1.0.0
-            Pipeline:
-              - TaskLambdaInvoker
-          createTask:
-            FieldName: createTask
-            Runtime:
-              Name: APPSYNC_JS
-              Version: 1.0.0
-            Pipeline:
-              - TaskLambdaInvoker
+              - LambdaInvoker
+
+  # Cognito User Pool for user authentication
+  TaskHubUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Ref CognitoUserPoolName
+      LambdaConfig:
+        PostConfirmation: !GetAtt CognitoPostUserSignupTrigger.Arn
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+      AutoVerifiedAttributes:
+        - email
+      EmailConfiguration:
+        EmailSendingAccount: COGNITO_DEFAULT
+      DeletionProtection: INACTIVE
+
+  # Cognito user group for defining user authorization level
+  TaskHubUserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      UserPoolId: !Ref TaskHubUserPool
+      GroupName: taskhub-customers
+      Description: Group for taskhub customers
+
+  # Cognito app client for single page application[SPA]
+  TaskHubUserAppClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref TaskHubUserPool
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthScopes:
+        - email
+        - openid
+        - profile
+        - phone
+      AllowedOAuthFlows:
+        - code
+        - implicit
+      CallbackURLs:
+        - http://localhost:4000
+        - https://staging.dkw9sv3534z94.amplifyapp.com/
+      ClientName: !Ref CognitoUserPoolClientName
+      EnablePropagateAdditionalUserContextData: true
+      PreventUserExistenceErrors: ENABLED
+      GenerateSecret: true
+      LogoutURLs:
+        - http://localhost:4000 # development localhost logout url
+        - https://staging.dkw9sv3534z94.amplifyapp.com/ # this we need to update if the url changes
+      ExplicitAuthFlows:
+        - ADMIN_NO_SRP_AUTH
+        - USER_PASSWORD_AUTH
+      SupportedIdentityProviders:
+        - COGNITO
+
+  # DynamoDB User Table to store user information
+  UsersDynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: user
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
+  # DynamoDB Task Table to store tasks information which is created by users
+  TaskHubDynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: user-tasks
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: user_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        - AttributeName: user_id
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
 Outputs:
-  MyGraphQLAPI:
-    Description: AppSync API
-    Value: !GetAtt TaskHubAppsyncApi.GraphQLUrl
-  MyGraphQLAPIMyApiKey:
-    Description: API Key for authentication
-    Value: !GetAtt TaskHubAppsyncApi.ApiId
+  TaskHubAppsyncApi:
+    Description: The AppSync GraphQL API for the task hub application
+    Value: !GetAtt TaskHubAppsyncGraphQLApi.GraphQLUrl

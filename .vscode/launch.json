@@ -19,10 +19,23 @@
     },
     {
       "type": "node",
-      "name": "sayHello",
+      "name": "greetings",
       "envFile": "${workspaceFolder}/.env",
       "outputCapture": "std",
-      "program": "${workspaceFolder}/localtest/sayHelloTest.mjs",
+      "program": "${workspaceFolder}/src/localtest/greetings/index.mjs",
+      "request": "launch",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
+      "env": {
+        "AWS_PROFILE": "AdministratorAccess-977098988167"
+      }
+    },
+    {
+      "type": "node",
+      "name": "post-cognito-signup",
+      "envFile": "${workspaceFolder}/.env",
+      "outputCapture": "std",
+      "program": "${workspaceFolder}/src/localtest/cognito-post-user-signup-trigger/index.mjs",
       "request": "launch",
       "console": "integratedTerminal",
       "skipFiles": ["<node_internals>/**"],

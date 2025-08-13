@@ -21,6 +21,7 @@ s3_prefix = "backend-taskhub-stack"
 region = "ap-south-1"
 profile = "AdministratorAccess-977098988167"
 image_repositories = []
+parameter_overrides = "CognitoUserPoolName=\"taskhub-user-pool\" CognitoUserPoolClientName=\"taskhub-spa-web-client\" AppsyncGraphqlName=\"Taskhub-appsync-api\""
 
 [default.package.parameters]
 resolve_s3 = true

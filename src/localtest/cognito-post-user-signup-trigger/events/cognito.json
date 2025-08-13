@@ -1,9 +1,14 @@
 {
   "field": "sayHello",
-  "arguments": { "name": "abc" },
+  "arguments": {},
   "identity": null,
   "source": null,
   "request": {
+    "userAttributes":{
+        "sub": "d2c1f0e1-5c3f-4b8c-bb2f-5b9a9c4d7e1f",
+        "email": "emauil@email.com",
+      "phone_number": 123526352
+    },
     "headers": {
       "x-amzn-appsync-is-vpce-request": "false",
       "x-forwarded-for": "152.57.112.17,15.158.42.74",
