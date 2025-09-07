@@ -1,1 +1,2 @@
 export const PAYLOAD_MISSING_MESSAGE = "Missing required user attributes"
+export const CognitoUserGroup = "taskhub-customers"

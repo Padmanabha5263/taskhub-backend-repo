@@ -11,32 +11,49 @@ Globals:
     MemorySize: 128
 
 Parameters:
-  CognitoUserPoolName:
-    Type: String
-    Default: taskhub-user-pool
-    Description: Name of the Cognito User Pool for user authentication
   CognitoUserPoolClientName:
     Type: String
     Default: taskhub-spa-web-client
     Description: Name of the Cognito User Pool Client for React single page application (SPA)
+  CognitoUserPoolDomain:
+    Type: String
+    Default: taskhub-userpool-domain
+    Description: Domain name for the Cognito User Pool and this is unique across all AWS accounts
   AppsyncGraphqlName:
     Type: String
     Default: Taskhub-appsync-api
     Description: Name of the AppSync GraphQL API for the task hub application
+  LocalhostCallbackURLs:
+    Type: String
+    Default: "http://localhost:5173"
+    Description: Callback url for the cognito user pool client. This is used for the single page application (SPA) to redirect after authentication.
+  ProductionCallbackURLs:
+    Type: String
+    Default: "https://staging.dkw9sv3534z94.amplifyapp.com/"
+    Description: Callback url for the cognito user pool client in production. This is used for the single page application (SPA) to redirect after authentication.
+  TaskHubApiKeyExpiresOn:
+    Type: Number
+    Default: 1762949209
+    Description: Expiration time for the AppSync API key in Unix timestamp format. This is used to set the expiration time for the API key.
 
 Resources:
   # Lambda function for saving the user information in DynamoDB after user signup
   CognitoPostUserSignupTrigger:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: cognitoPostUserSignupTrigger
+      FunctionName: cognito-post-signup-confirm-trigger
       CodeUri: src/handlers/cognito-post-user-signup-trigger
       Handler: index.handler
       Layers:
-        - !Ref TaskHubLambdaLayer
+        - !Ref TaskHubCognitoLambdaLayer
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref UsersDynamoDBTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - cognito-idp:AdminAddUserToGroup
+              Resource: !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/*"
 
   # Hello world Lambda function that will greet user
   HelloWorldLambda:
@@ -64,6 +81,22 @@ Resources:
       BuildMethod: nodejs20.x
       BuildArchitecture: arm64
 
+  # lambda layer for cognito user dependency
+  TaskHubCognitoLambdaLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: taskhub-cognito-layer
+      Description: dynamodb, uuid, cognito dependencies for the taskhub project
+      ContentUri: lambdalayer/taskhubcognitodependency
+      CompatibleRuntimes:
+        - nodejs20.x
+      CompatibleArchitectures:
+        - arm64
+      RetentionPolicy: Delete
+    Metadata:
+      BuildMethod: nodejs20.x
+      BuildArchitecture: arm64
+
   # Appsync GraphQL API for the task hub application
   TaskHubAppsyncGraphQLApi:
     Type: AWS::Serverless::GraphQLApi
@@ -74,7 +107,7 @@ Resources:
         TaskHubApiKey:
           ApiKeyId: taskhubapikey12345
           Description: TaskHub API Key
-          ExpiresOn: 1762949209
+          ExpiresOn: !Ref TaskHubApiKeyExpiresOn
       Auth:
         Type: AMAZON_COGNITO_USER_POOLS
         UserPool:
@@ -111,7 +144,24 @@ Resources:
   TaskHubUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
-      UserPoolName: !Ref CognitoUserPoolName
+      UserPoolName: taskhub-userpool
+      Schema:
+        - Name: email
+          Required: true
+          Mutable: true
+          AttributeDataType: String
+        - Name: name
+          Required: true
+          Mutable: true
+          AttributeDataType: String
+        - Name: gender
+          Required: false
+          Mutable: true
+          AttributeDataType: String
+      UsernameAttributes:
+        - email
+      UsernameConfiguration:
+        CaseSensitive: false
       LambdaConfig:
         PostConfirmation: !GetAtt CognitoPostUserSignupTrigger.Arn
       AccountRecoverySetting:
@@ -124,7 +174,20 @@ Resources:
         - email
       EmailConfiguration:
         EmailSendingAccount: COGNITO_DEFAULT
+      VerificationMessageTemplate:
+        DefaultEmailOption: CONFIRM_WITH_CODE
+        EmailMessage: '"This is your verification code: "{####}"'
+        EmailSubject: "Your Account Verification Code"
       DeletionProtection: INACTIVE
+
+  # creating lambda invoke permission for cognito
+  CognitoPostUserSignupTriggerPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt CognitoPostUserSignupTrigger.Arn
+      Principal: cognito-idp.amazonaws.com
+      SourceArn: !GetAtt TaskHubUserPool.Arn
 
   # Cognito user group for defining user authorization level
   TaskHubUserGroup:
@@ -133,6 +196,13 @@ Resources:
       UserPoolId: !Ref TaskHubUserPool
       GroupName: taskhub-customers
       Description: Group for taskhub customers
+
+  # Cognito user pool domain
+  TaskHubUserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: !Ref CognitoUserPoolDomain #make sure this domain name is unique when this template deployed for the first time
+      UserPoolId: !Ref TaskHubUserPool
 
   # Cognito app client for single page application[SPA]
   TaskHubUserAppClient:
@@ -149,21 +219,20 @@ Resources:
         - code
         - implicit
       CallbackURLs:
-        - http://localhost:4000
-        - https://staging.dkw9sv3534z94.amplifyapp.com/
+        - !Ref LocalhostCallbackURLs
+        - !Ref ProductionCallbackURLs # production callback url
       ClientName: !Ref CognitoUserPoolClientName
       EnablePropagateAdditionalUserContextData: true
       PreventUserExistenceErrors: ENABLED
       GenerateSecret: true
       LogoutURLs:
-        - http://localhost:4000 # development localhost logout url
-        - https://staging.dkw9sv3534z94.amplifyapp.com/ # this we need to update if the url changes
+        - !Ref LocalhostCallbackURLs # development localhost logout url
+        - !Ref ProductionCallbackURLs # production callback url, this we need to update if the url changes
       ExplicitAuthFlows:
         - ADMIN_NO_SRP_AUTH
         - USER_PASSWORD_AUTH
       SupportedIdentityProviders:
         - COGNITO
-
   # DynamoDB User Table to store user information
   UsersDynamoDBTable:
     Type: AWS::DynamoDB::Table

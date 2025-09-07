@@ -20,6 +20,7 @@ creating the serverless appsync graphql api using the services like lambda, dyna
 4. **sam init** <br/> initlise the sam project
 5. **sam deploy --guided --profile profile-name** <br/> this command will deploy the build file which is created using sam build command and you can verify the change after successfull deployment
 6. **aws sso login --profile profile-name** <br/> login to the aws via cli way
+7. **sam sync --code --resource-id resourceid --profile profile --stack-name stackname** <br/> to sync code without complete stack deployment
 
 ## GraphQL Api
 

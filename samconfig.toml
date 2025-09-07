@@ -21,7 +21,7 @@ s3_prefix = "backend-taskhub-stack"
 region = "ap-south-1"
 profile = "AdministratorAccess-977098988167"
 image_repositories = []
-parameter_overrides = "CognitoUserPoolName=\"taskhub-user-pool\" CognitoUserPoolClientName=\"taskhub-spa-web-client\" AppsyncGraphqlName=\"Taskhub-appsync-api\""
+parameter_overrides = "CognitoUserPoolClientName=\"taskhub-spa-web-client\" CognitoUserPoolDomain=\"taskhub-userpool-domain\" AppsyncGraphqlName=\"Taskhub-appsync-api\" LocalhostCallbackURLs=\"http://localhost:5173\" ProductionCallbackURLs=\"https://staging.dkw9sv3534z94.amplifyapp.com/\" TaskHubApiKeyExpiresOn=\"1762949209\""
 
 [default.package.parameters]
 resolve_s3 = true
