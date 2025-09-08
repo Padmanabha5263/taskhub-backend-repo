@@ -6,72 +6,139 @@ Description: >
   Sample SAM Template for Backend-taskhub-repo
 Globals:
   Function:
-    Runtime: nodejs18.x
+    Runtime: nodejs20.x
     Timeout: 10
     MemorySize: 128
 
+Parameters:
+  LocalhostCallbackURLs:
+    Type: String
+    Default: "http://localhost:5173"
+    Description: Callback url for the cognito user pool client. This is used for the single page application (SPA) to redirect after authentication.
+  ProductionCallbackURLs:
+    Type: String
+    Default: "https://staging.dkw9sv3534z94.amplifyapp.com/"
+    Description: Callback url for the cognito user pool client in production. This is used for the single page application (SPA) to redirect after authentication.
+
 Resources:
-  ## Lambda Function
-  GreetingsLambdaFunction:
+  # Lambda function for saving the user information in DynamoDB after user signup
+  CognitoPostUserSignupTrigger:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: sayHello
-      Handler: sayHello.SayHelloHandler
-      CodeUri: src/handlers
-
-  GetTasksByUserIdLambdaFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      FunctionName: getTasksByUserId
-      Handler: getTasksByUserId.getTasksByUserIdHandler
-      CodeUri: src/handlers
+      FunctionName: cognito-post-signup-confirm-trigger
+      CodeUri: src/handlers/cognito-post-user-signup-trigger
+      Handler: index.handler
+      Layers:
+        - !Ref TaskHubCognitoLambdaLayer
       Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersDynamoDBTable
         - Statement:
-            Effect: Allow
-            Action:
-              - dynamodb:Query
-            Resource:
-              - arn:aws:dynamodb:ap-south-1:977098988167:table/task
-              - arn:aws:dynamodb:ap-south-1:977098988167:table/task/index/userid-index
+            - Effect: Allow
+              Action:
+                - cognito-idp:AdminAddUserToGroup
+              Resource: !Sub "arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/*"
 
-  ## AppSync API
-  TaskHubAppsyncApi:
+  # Hello world Lambda function that will greet user
+  HelloWorldLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: helloWorld
+      CodeUri: src/handlers/greetings
+      Handler: index.SayHelloHandler
+      Layers:
+        - !Ref TaskHubLambdaLayer
+
+  # usertask lambda function will handle user task operation
+  UserTasksLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: UserTasks
+      CodeUri: src/handlers/user-tasks
+      Handler: index.handler
+      Layers:
+        - !Ref TaskHubLambdaLayer
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TaskHubDynamoDBTable
+
+  # lambda layer for common dependencies
+  TaskHubLambdaLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: taskhub-layer
+      Description: Dependencies for the taskhub project
+      ContentUri: lambdalayer/taskhubdependency
+      CompatibleRuntimes:
+        - nodejs20.x
+      CompatibleArchitectures:
+        - arm64
+      RetentionPolicy: Delete
+    Metadata:
+      BuildMethod: nodejs20.x
+      BuildArchitecture: arm64
+
+  # lambda layer for cognito user dependency
+  TaskHubCognitoLambdaLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: taskhub-cognito-layer
+      Description: dynamodb, uuid, cognito dependencies for the taskhub project
+      ContentUri: lambdalayer/taskhubcognitodependency
+      CompatibleRuntimes:
+        - nodejs20.x
+      CompatibleArchitectures:
+        - arm64
+      RetentionPolicy: Delete
+    Metadata:
+      BuildMethod: nodejs20.x
+      BuildArchitecture: arm64
+
+  # Appsync GraphQL API for the task hub application
+  TaskHubAppsyncGraphQLApi:
     Type: AWS::Serverless::GraphQLApi
     Properties:
-      Name: TaskHubAppsyncApi
+      Name: Taskhub-appsync-api
       SchemaUri: src/schema.graphql
-      DataSources:
-        Lambda:
-          GreetingsLambdaDataSource:
-            Description: it will greet to the user
-            FunctionArn: !GetAtt GreetingsLambdaFunction.Arn
-          GetTaskByUserIdLambdaDataSource:
-            Description: it will greet to the user
-            FunctionArn: !GetAtt GetTasksByUserIdLambdaFunction.Arn
-      Functions:
-        greetLambdaInvoker:
-          Runtime:
-            Name: APPSYNC_JS
-            Version: 1.0.0
-          DataSource: GreetingsLambdaDataSource
-          CodeUri: src/gql/greetings.js
-        GetTasksByUseridInvoker:
-          Runtime:
-            Name: APPSYNC_JS
-            Version: 1.0.0
-          DataSource: GetTaskByUserIdLambdaDataSource
-          CodeUri: src/gql/getTasksByUserId.js
+      ApiKeys:
+        TaskHubApiKey:
+          ApiKeyId: taskhubapikey12345
+          Description: TaskHub API Key
+          ExpiresOn: 1762949209
       Auth:
-        Type: OPENID_CONNECT
-        OpenIDConnect:
-          ClientId: n8nj3s96pr06h0eghdcun8qt2
-          Issuer: https://cognito-idp.ap-south-1.amazonaws.com/ap-south-1_x1WoxDDV3
+        Type: AMAZON_COGNITO_USER_POOLS
+        UserPool:
+          AwsRegion: !Ref AWS::Region
+          UserPoolId: !Ref TaskHubUserPool
+          DefaultAction: ALLOW
         Additional:
           - Type: API_KEY
-      ApiKeys:
-        TaskHubAppsyncApiKey:
-          Description: TaskHubAppsyncApiKey api key
+      DataSources:
+        Lambda:
+          HelloWorldLambdaDataSource:
+            Description: this lambda data source connected to hello world lambda funtion
+            Name: HelloWorldLambdaDataSource
+            FunctionArn: !GetAtt HelloWorldLambda.Arn
+          UserTasksLambdaDataSource:
+            Description: this lambda data source connected to user task lambda funtion
+            Name: UserTasksLambdaDataSource
+            FunctionArn: !GetAtt UserTasksLambda.Arn
 
+      Functions:
+        LambdaInvoker:
+          Name: LambdaInvoker
+          CodeUri: src/gql/requestsAndResponse.mjs
+          DataSource: HelloWorldLambdaDataSource
+          Runtime:
+            Name: APPSYNC_JS
+            Version: 1.0.0
+        LambdaUserTaskInvoker:
+          Name: LambdaUserTaskInvoker
+          CodeUri: src/gql/requestsAndResponse.mjs
+          DataSource: UserTasksLambdaDataSource
+          Runtime:
+            Name: APPSYNC_JS
+            Version: 1.0.0
       Resolvers:
         Query:
           sayHello:
@@ -80,19 +147,158 @@ Resources:
               Name: APPSYNC_JS
               Version: 1.0.0
             Pipeline:
-              - greetLambdaInvoker
+              - LambdaInvoker
           getTasksByUserId:
             FieldName: getTasksByUserId
             Runtime:
               Name: APPSYNC_JS
               Version: 1.0.0
             Pipeline:
-              - GetTasksByUseridInvoker
+              - LambdaUserTaskInvoker
+        Mutation:
+          createTask:
+            FieldName: createTask
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0s
+            Pipeline:
+              - LambdaUserTaskInvoker
+          deleteTaskById:
+            FieldName: deleteTaskById
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - LambdaUserTaskInvoker
+
+  # Cognito User Pool for user authentication
+  TaskHubUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: taskhub-userpool
+      Schema:
+        - Name: email
+          Required: true
+          Mutable: true
+          AttributeDataType: String
+        - Name: name
+          Required: true
+          Mutable: true
+          AttributeDataType: String
+        - Name: gender
+          Required: false
+          Mutable: true
+          AttributeDataType: String
+      UsernameAttributes:
+        - email
+      UsernameConfiguration:
+        CaseSensitive: false
+      LambdaConfig:
+        PostConfirmation: !GetAtt CognitoPostUserSignupTrigger.Arn
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+      AutoVerifiedAttributes:
+        - email
+      EmailConfiguration:
+        EmailSendingAccount: COGNITO_DEFAULT
+      VerificationMessageTemplate:
+        DefaultEmailOption: CONFIRM_WITH_CODE
+        EmailMessage: '"This is your verification code: "{####}"'
+        EmailSubject: "Your Account Verification Code"
+      DeletionProtection: INACTIVE
+
+  # creating lambda invoke permission for cognito
+  CognitoPostUserSignupTriggerPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt CognitoPostUserSignupTrigger.Arn
+      Principal: cognito-idp.amazonaws.com
+      SourceArn: !GetAtt TaskHubUserPool.Arn
+
+  # Cognito user group for defining user authorization level
+  TaskHubUserGroup:
+    Type: AWS::Cognito::UserPoolGroup
+    Properties:
+      UserPoolId: !Ref TaskHubUserPool
+      GroupName: taskhub-customers
+      Description: Group for taskhub customers
+
+  # Cognito user pool domain
+  TaskHubUserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: taskhub-userpool-domain #make sure this domain name is unique when this template deployed for the first time
+      UserPoolId: !Ref TaskHubUserPool
+
+  # Cognito app client for single page application[SPA]
+  TaskHubUserAppClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref TaskHubUserPool
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthScopes:
+        - email
+        - openid
+        - profile
+        - phone
+      AllowedOAuthFlows:
+        - code
+        - implicit
+      CallbackURLs:
+        - !Ref LocalhostCallbackURLs
+        - !Ref ProductionCallbackURLs # production callback url
+      ClientName: taskhub-spa-web-client
+      EnablePropagateAdditionalUserContextData: true
+      PreventUserExistenceErrors: ENABLED
+      GenerateSecret: true
+      LogoutURLs:
+        - !Ref LocalhostCallbackURLs # development localhost logout url
+        - !Ref ProductionCallbackURLs # production callback url, this we need to update if the url changes
+      ExplicitAuthFlows:
+        - ADMIN_NO_SRP_AUTH
+        - USER_PASSWORD_AUTH
+      SupportedIdentityProviders:
+        - COGNITO
+  # DynamoDB User Table to store user information
+  UsersDynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: user
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
+  # DynamoDB Task Table to store tasks information which is created by users
+  TaskHubDynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: user-tasks
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: user_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        - AttributeName: user_id
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
 
 Outputs:
-  MyGraphQLAPI:
-    Description: AppSync API
-    Value: !GetAtt TaskHubAppsyncApi.GraphQLUrl
-  MyGraphQLAPIMyApiKey:
-    Description: API Key for authentication
-    Value: !GetAtt TaskHubAppsyncApi.ApiId
+  TaskHubAppsyncApi:
+    Description: The AppSync GraphQL API for the task hub application
+    Value: !GetAtt TaskHubAppsyncGraphQLApi.GraphQLUrl

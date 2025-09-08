@@ -6,20 +6,43 @@
   "configurations": [
     {
       "type": "node",
-      "name": "getTasksByUserId",
+      "name": "greetings",
       "envFile": "${workspaceFolder}/.env",
-      "program": "${workspaceFolder}/test/getTasksByUserIdTest.mjs",
+      "outputCapture": "std",
+      "program": "${workspaceFolder}/src/localtest/greetings/index.mjs",
       "request": "launch",
       "console": "integratedTerminal",
-      "skipFiles": ["<node_internals>/**"]
+      "skipFiles": ["<node_internals>/**"],
+      "env": {
+        "AWS_PROFILE": "AdministratorAccess-977098988167"
+      }
     },
     {
       "type": "node",
-      "name": "sayHello",
+      "name": "post-cognito-signup",
       "envFile": "${workspaceFolder}/.env",
-      "program": "${workspaceFolder}/test/sayHelloTest.mjs",
+      "outputCapture": "std",
+      "program": "${workspaceFolder}/src/localtest/cognito-post-user-signup-trigger/index.mjs",
       "request": "launch",
-      "skipFiles": ["<node_internals>/**"]
-    }
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
+      "env": {
+        "AWS_PROFILE": "AdministratorAccess-977098988167"
+      }
+    },
+    {
+      "type": "node",
+      "name": "user-tasks",
+      "envFile": "${workspaceFolder}/.env",
+      "outputCapture": "std",
+      "program": "${workspaceFolder}/src/localtest/user-tasks/index.mjs",
+      "request": "launch",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
+      "env": {
+        "AWS_PROFILE": "AdministratorAccess-977098988167"
+      }
+    },
+    
   ]
 }
