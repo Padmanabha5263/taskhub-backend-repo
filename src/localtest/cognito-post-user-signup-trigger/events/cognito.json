@@ -1,0 +1,21 @@
+{
+  "version": "1",
+  "region": "ap-south-1",
+  "userPoolId": "ap-south-1_nzJ4WAimf",
+  "userName": "b1830d0a-9001-70a3-a482-aeb231c8c9a2",
+  "callerContext": {
+    "awsSdkVersion": "aws-sdk-unknown-unknown",
+    "clientId": "2mlivlodnhfmo96gfss8fmm320"
+  },
+  "triggerSource": "PostConfirmation_ConfirmSignUp",
+  "request": {
+    "userAttributes": {
+      "sub": "b1830d0a-9001-70a3-a482-aeb231c8c9a2",
+      "email_verified": "true",
+      "cognito:user_status": "CONFIRMED",
+      "name": "david paul",
+      "email": "wonedo2326@inupup.com"
+    }
+  },
+  "response": {}
+}

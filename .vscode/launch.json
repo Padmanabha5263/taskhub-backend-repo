@@ -1,0 +1,48 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "name": "greetings",
+      "envFile": "${workspaceFolder}/.env",
+      "outputCapture": "std",
+      "program": "${workspaceFolder}/src/localtest/greetings/index.mjs",
+      "request": "launch",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
+      "env": {
+        "AWS_PROFILE": "AdministratorAccess-977098988167"
+      }
+    },
+    {
+      "type": "node",
+      "name": "post-cognito-signup",
+      "envFile": "${workspaceFolder}/.env",
+      "outputCapture": "std",
+      "program": "${workspaceFolder}/src/localtest/cognito-post-user-signup-trigger/index.mjs",
+      "request": "launch",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
+      "env": {
+        "AWS_PROFILE": "AdministratorAccess-977098988167"
+      }
+    },
+    {
+      "type": "node",
+      "name": "user-tasks",
+      "envFile": "${workspaceFolder}/.env",
+      "outputCapture": "std",
+      "program": "${workspaceFolder}/src/localtest/user-tasks/index.mjs",
+      "request": "launch",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
+      "env": {
+        "AWS_PROFILE": "AdministratorAccess-977098988167"
+      }
+    },
+    
+  ]
+}

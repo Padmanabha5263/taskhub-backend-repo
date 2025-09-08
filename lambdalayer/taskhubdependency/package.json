@@ -1,0 +1,34 @@
+{
+  "name": "taskhub-backend-repo",
+  "version": "1.0.0",
+  "description": "it is an task-hub-backend repository to create serververless backend with aws sam, dynamodb, lambda",
+  "main": "index.mjs",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Padmanabha5263/taskhub-backend-repo.git"
+  },
+  "keywords": [
+    "api",
+    "grapgql",
+    "appsync",
+    "lambda",
+    "dynamodb",
+    "aws",
+    "sam"
+  ],
+  "author": "padmanabha",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Padmanabha5263/taskhub-backend-repo/issues"
+  },
+  "homepage": "https://github.com/Padmanabha5263/taskhub-backend-repo#readme",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.830.0",
+    "@aws-sdk/lib-dynamodb": "^3.830.0",
+    "uuid": "^11.1.0"
+  }
+}
