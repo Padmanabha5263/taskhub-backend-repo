@@ -1,13 +1,4 @@
-interface Response {
-  statusCode: Int @aws_api_key @aws_cognito_user_pools
-  message: String @aws_api_key @aws_cognito_user_pools
-}
-
-type CreateTaskResponse implements Response {
-  statusCode: Int @aws_api_key @aws_cognito_user_pools
-  message: String @aws_api_key @aws_cognito_user_pools
-}
-type GreetingsResponse implements Response {
+type GreetingsResponse {
   statusCode: Int @aws_api_key @aws_cognito_user_pools
   message: String @aws_api_key @aws_cognito_user_pools
   data: String @aws_api_key @aws_cognito_user_pools
@@ -17,29 +8,24 @@ type Task {
   id: ID! @aws_api_key @aws_cognito_user_pools
   taskname: String! @aws_api_key @aws_cognito_user_pools
   description: String @aws_api_key @aws_cognito_user_pools
+  userid: String @aws_api_key @aws_cognito_user_pools
+  created_at: String @aws_api_key @aws_cognito_user_pools
 }
 
-type TasksResponse implements Response {
-  statusCode: Int @aws_api_key @aws_cognito_user_pools
-  message: String @aws_api_key @aws_cognito_user_pools
-  data: [Task] @aws_api_key @aws_cognito_user_pools
+type TasksResponse{
+  statusCode: Int! @aws_api_key @aws_cognito_user_pools
+  message: String! @aws_api_key @aws_cognito_user_pools
+  data: [Task]! @aws_api_key @aws_cognito_user_pools
 }
 
 type Query {
   sayHello(name: String): GreetingsResponse @aws_api_key @aws_cognito_user_pools
-  getTasksByUserId(userid: ID!): TasksResponse
-    @aws_api_key
+  getTasksByUserId(userid: ID!): TasksResponse @aws_api_key
     @aws_cognito_user_pools
 }
 type Mutation {
-  deleteTaskById(userid: ID!, id: ID!): TasksResponse
-    @aws_api_key
-    @aws_cognito_user_pools
-  createTask(
-    userid: ID!
-    description: String
-    taskname: String
-  ): CreateTaskResponse @aws_api_key @aws_cognito_user_pools
+  deleteTaskById(userid: ID!, taskid: ID!): TasksResponse @aws_api_key @aws_cognito_user_pools
+  createTask(userid: ID!, description: String, taskname: String ): TasksResponse @aws_api_key @aws_cognito_user_pools
 }
 schema {
   query: Query

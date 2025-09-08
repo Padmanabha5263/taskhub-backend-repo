@@ -6,19 +6,6 @@
   "configurations": [
     {
       "type": "node",
-      "name": "getTasksByUserId",
-      "envFile": "${workspaceFolder}/.env",
-      "program": "${workspaceFolder}/localtest/getTasksByUserIdTest.mjs",
-      "request": "launch",
-      "outputCapture": "std",
-      "console": "integratedTerminal",
-      "skipFiles": ["<node_internals>/**"],
-      "env": {
-        "AWS_PROFILE": "AdministratorAccess-977098988167"
-      }
-    },
-    {
-      "type": "node",
       "name": "greetings",
       "envFile": "${workspaceFolder}/.env",
       "outputCapture": "std",
@@ -45,10 +32,10 @@
     },
     {
       "type": "node",
-      "name": "createTask",
+      "name": "user-tasks",
       "envFile": "${workspaceFolder}/.env",
       "outputCapture": "std",
-      "program": "${workspaceFolder}/localtest/createTaskTest.mjs",
+      "program": "${workspaceFolder}/src/localtest/user-tasks/index.mjs",
       "request": "launch",
       "console": "integratedTerminal",
       "skipFiles": ["<node_internals>/**"],
@@ -56,18 +43,6 @@
         "AWS_PROFILE": "AdministratorAccess-977098988167"
       }
     },
-    {
-      "type": "node",
-      "name": "deleteTaskById",
-      "envFile": "${workspaceFolder}/.env",
-      "outputCapture": "std",
-      "program": "${workspaceFolder}/localtest/deleteTaskByIdTest.mjs",
-      "request": "launch",
-      "console": "integratedTerminal",
-      "skipFiles": ["<node_internals>/**"],
-      "env": {
-        "AWS_PROFILE": "AdministratorAccess-977098988167"
-      }
-    }
+    
   ]
 }

@@ -65,6 +65,19 @@ Resources:
       Layers:
         - !Ref TaskHubLambdaLayer
 
+  # usertask lambda function will handle user task operation
+  UserTasksLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: UserTasks
+      CodeUri: src/handlers/user-tasks
+      Handler: index.handler
+      Layers:
+        - !Ref TaskHubLambdaLayer
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TaskHubDynamoDBTable
+
   # lambda layer for common dependencies
   TaskHubLambdaLayer:
     Type: AWS::Serverless::LayerVersion
@@ -122,11 +135,23 @@ Resources:
             Description: this lambda data source connected to hello world lambda funtion
             Name: HelloWorldLambdaDataSource
             FunctionArn: !GetAtt HelloWorldLambda.Arn
+          UserTasksLambdaDataSource:
+            Description: this lambda data source connected to user task lambda funtion
+            Name: UserTasksLambdaDataSource
+            FunctionArn: !GetAtt UserTasksLambda.Arn
+
       Functions:
         LambdaInvoker:
           Name: LambdaInvoker
           CodeUri: src/gql/requestsAndResponse.mjs
           DataSource: HelloWorldLambdaDataSource
+          Runtime:
+            Name: APPSYNC_JS
+            Version: 1.0.0
+        LambdaUserTaskInvoker:
+          Name: LambdaUserTaskInvoker
+          CodeUri: src/gql/requestsAndResponse.mjs
+          DataSource: UserTasksLambdaDataSource
           Runtime:
             Name: APPSYNC_JS
             Version: 1.0.0
@@ -139,6 +164,21 @@ Resources:
               Version: 1.0.0
             Pipeline:
               - LambdaInvoker
+        Mutation:
+          createTask:
+            FieldName: createTask
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0s
+            Pipeline:
+              - LambdaUserTaskInvoker
+          deleteTaskById:
+            FieldName: deleteTaskById
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - LambdaUserTaskInvoker
 
   # Cognito User Pool for user authentication
   TaskHubUserPool:
