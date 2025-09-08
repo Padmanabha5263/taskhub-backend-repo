@@ -1,6 +1,7 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { DeleteCommand, DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
+import { DeleteCommand, DynamoDBDocumentClient, PutCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import { currentDateTime, generateId } from "./helper/constants.mjs";
+
 
 
 
@@ -38,6 +39,32 @@ export class Task {
                 data: [],
                 statusCode: 500,
                 message: `Failed to create the task: ${error.message}`,
+            };
+        }
+    }
+
+    // function to fetch all tasks by userid
+    async fetchTasks(userid) {
+        try {
+            const response = await this.docDbClient.send(
+                new ScanCommand({
+                    TableName: "user-tasks",
+                    FilterExpression: "user_id = :user_id",
+                    ExpressionAttributeValues: {
+                        ":user_id": userid,
+                    },
+                })
+            );
+            return {
+                statusCode: 200,
+                message: "Successfully fetched tasks",
+                data: response.Items ? response.Items : [],
+            };
+        } catch (error) {
+            return {
+                statusCode: 500,
+                message: `Failed to fetch the tasks: ${error.message}`,
+                data: [],
             };
         }
     }

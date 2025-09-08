@@ -14,6 +14,8 @@ export const handler = async (event) => {
                 return await taskObj.createTask(userid, description, taskname)
             case "deleteTaskById":
                 return await taskObj.deleteTask(userid, taskid)
+            case "getTasksByUserId":
+                return await taskObj.fetchTasks(userid)
             default:
                 break;
         }

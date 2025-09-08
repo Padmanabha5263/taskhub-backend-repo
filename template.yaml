@@ -11,18 +11,6 @@ Globals:
     MemorySize: 128
 
 Parameters:
-  CognitoUserPoolClientName:
-    Type: String
-    Default: taskhub-spa-web-client
-    Description: Name of the Cognito User Pool Client for React single page application (SPA)
-  CognitoUserPoolDomain:
-    Type: String
-    Default: taskhub-userpool-domain
-    Description: Domain name for the Cognito User Pool and this is unique across all AWS accounts
-  AppsyncGraphqlName:
-    Type: String
-    Default: Taskhub-appsync-api
-    Description: Name of the AppSync GraphQL API for the task hub application
   LocalhostCallbackURLs:
     Type: String
     Default: "http://localhost:5173"
@@ -31,10 +19,6 @@ Parameters:
     Type: String
     Default: "https://staging.dkw9sv3534z94.amplifyapp.com/"
     Description: Callback url for the cognito user pool client in production. This is used for the single page application (SPA) to redirect after authentication.
-  TaskHubApiKeyExpiresOn:
-    Type: Number
-    Default: 1762949209
-    Description: Expiration time for the AppSync API key in Unix timestamp format. This is used to set the expiration time for the API key.
 
 Resources:
   # Lambda function for saving the user information in DynamoDB after user signup
@@ -114,13 +98,13 @@ Resources:
   TaskHubAppsyncGraphQLApi:
     Type: AWS::Serverless::GraphQLApi
     Properties:
-      Name: !Ref AppsyncGraphqlName
+      Name: Taskhub-appsync-api
       SchemaUri: src/schema.graphql
       ApiKeys:
         TaskHubApiKey:
           ApiKeyId: taskhubapikey12345
           Description: TaskHub API Key
-          ExpiresOn: !Ref TaskHubApiKeyExpiresOn
+          ExpiresOn: 1762949209
       Auth:
         Type: AMAZON_COGNITO_USER_POOLS
         UserPool:
@@ -164,6 +148,13 @@ Resources:
               Version: 1.0.0
             Pipeline:
               - LambdaInvoker
+          getTasksByUserId:
+            FieldName: getTasksByUserId
+            Runtime:
+              Name: APPSYNC_JS
+              Version: 1.0.0
+            Pipeline:
+              - LambdaUserTaskInvoker
         Mutation:
           createTask:
             FieldName: createTask
@@ -241,7 +232,7 @@ Resources:
   TaskHubUserPoolDomain:
     Type: AWS::Cognito::UserPoolDomain
     Properties:
-      Domain: !Ref CognitoUserPoolDomain #make sure this domain name is unique when this template deployed for the first time
+      Domain: taskhub-userpool-domain #make sure this domain name is unique when this template deployed for the first time
       UserPoolId: !Ref TaskHubUserPool
 
   # Cognito app client for single page application[SPA]
@@ -261,7 +252,7 @@ Resources:
       CallbackURLs:
         - !Ref LocalhostCallbackURLs
         - !Ref ProductionCallbackURLs # production callback url
-      ClientName: !Ref CognitoUserPoolClientName
+      ClientName: taskhub-spa-web-client
       EnablePropagateAdditionalUserContextData: true
       PreventUserExistenceErrors: ENABLED
       GenerateSecret: true
