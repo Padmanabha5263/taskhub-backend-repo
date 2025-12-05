@@ -4,6 +4,7 @@ creating the serverless appsync graphql api using the services like lambda, dyna
 
 ### Project installation guide
 1. first thing you should have aws account with developer role and login to your aws account <br/>
+. create an oidc authentication and authorization - spa app type using aws cognito service
 . make sure you have installed vscode, aws sam cli, aws cli, git, nodejs softwares in your system <br/>
 . download the project with git clone command<br/>
 . execute aws sso login --profile aws-developer-profile-role  <br/>

@@ -1,7 +1,9 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { CognitoIdentityProviderClient, AdminAddUserToGroupCommand } from "@aws-sdk/client-cognito-identity-provider";
-import { CognitoUserGroup, PAYLOAD_MISSING_MESSAGE } from "./helper/constants.mjs";
+import { COGNITO_USER_GROUP, PAYLOAD_MISSING_MESSAGE } from "./helper/constants.mjs";
+import { User } from "./Dal/UserDao.mjs";
+import { CognitoDao } from "./dal/UserCognitoGroupDao.mjs";
 
 
 // initialize DynamoDB Document Client
@@ -16,29 +18,14 @@ const cognitoClient = new CognitoIdentityProviderClient({ region: process.env.AW
 export const handler = async (event) => {
     const userAttributes = event.request.userAttributes;
 
-    if (!userAttributes.sub || !userAttributes.email) {
-        console.error(PAYLOAD_MISSING_MESSAGE);
-        return event;
-    }
-
     try {
         // Save user details to DynamoDB once user created successfully in Cognito
-        await docClient.send(new PutCommand({
-            TableName: 'user',
-            Item: {
-                id: userAttributes.sub,
-                name: userAttributes.name,
-                user_email: userAttributes.email,
-                created_at: new Date().toISOString()
-            }
-        }));
+        const userObj = new User(userAttributes.sub, userAttributes.name, userAttributes.email, docClient)
+        await userObj.addUserToTable()
 
         // Add user to the Cognito User Group
-        await cognitoClient.send(new AdminAddUserToGroupCommand({
-            UserPoolId: event.userPoolId,
-            Username: event.userName,
-            GroupName: CognitoUserGroup,
-        }))
+        const cognitoObj = new CognitoDao(cognitoClient, event.userPoolId, event.userName)
+        await cognitoObj.addUserToGroup()
     }
     catch (error) {
         console.error("Error saving user to DynamoDB:", error.message);

@@ -1,0 +1,8 @@
+export const CREATE_TASK_SUCCESS_MSG = "Successfully created task"
+export const CREATE_TASK_FAILURE_MSG = "Failed to create the task"
+export const FETCH_TASK_SUCCESS_MSG = "Successfully fetched tasks"
+export const FETCH_TASK_FAILURE_MSG = "Failed to fetch the tasks:"
+export const UPDATE_TASK_SUCCESS_MSG = "Successfully updated task"
+export const UPDATE_TASK_FAILURE_MSG = "Failed to update the task"
+export const DELETE_TASK_SUCCESS_MSG = "Successfully deleted task"
+export const DELETE_TASK_FAILURE_MSG = "Failed to delete the task"
